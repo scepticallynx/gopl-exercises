@@ -22,11 +22,12 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"unicode"
 )
 
 func main() {
 	for i := 1; i < len(os.Args); i++ {
-		fmt.Printf("  %s\n", commaBuffer(os.Args[i]))
+		fmt.Printf("  %s\n", commaEnhanced(os.Args[i]))
 	}
 }
 
@@ -63,5 +64,58 @@ func commaBuffer(s string) string {
 }
 
 // Exercise 3.11
-// commaEnhanced also parses floating point numbers from specified string with
-// optional sign.
+// commaEnhanced also parses floating point numbers with 1 decimal digit
+// from specified string with optional sign (+/-).
+func commaEnhanced(s string) string {
+	var b bytes.Buffer
+
+	var digitsCounter int
+	var skipRunes = make(map[int]struct{})
+
+	for n, r := range s {
+		// skip current rune if it is found in skipRunes map
+		if _, exists := skipRunes[n]; exists {
+			continue
+		}
+
+		// catch non digits with custom handling each case
+		// and incrementing digits counter only if rune is digit
+		switch {
+		case unicode.IsSymbol(r) || r == '-': // minus is not '-', it's '−' \U+2212
+			break
+		case unicode.IsPunct(r): // float separators: '.' and ','
+			b.WriteRune(r)
+
+			// look ahead only if this is not the end of the string
+			if next := n + 1; next < len(s)-1 {
+				b.WriteByte(s[next])
+				skipRunes[next] = struct{}{}
+			}
+
+			continue
+		default:
+			digitsCounter++ // increment counter (need 3 digits in a row to put ',' after them)
+		}
+
+		b.WriteRune(r)
+
+		if digitsCounter == 3 {
+			if n+1 >= len(s) {
+				break
+			}
+
+			next := s[n+1]
+			if unicode.IsPunct(rune(next)) && rune(next) != '-' { // not a minus
+				b.WriteByte(next)
+				b.WriteByte(s[n+2])
+				skipRunes[n+1] = struct{}{}
+				skipRunes[n+2] = struct{}{}
+			}
+
+			b.WriteString(", ")
+			digitsCounter = 0
+		}
+	}
+
+	return b.String()
+}
