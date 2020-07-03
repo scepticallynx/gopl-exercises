@@ -26,14 +26,17 @@ import (
 	"os"
 )
 
-const (
-	width, height = 1000, 1000            // number of grid points
-	wx2, hx2      = width * 2, height * 2 // number of grid point for antialiasing
-	iterations    = 50                    // number of iterations
-	precision     = 1e-6                  // desired precision goal
+var (
+	xmin, ymin, xmax, ymax = -2.1, -2.1, +2.1, +2.1 // left and right boundaries for plotting
+	width, height          = 1000, 1000             // number of grid points
+	iterations             = 50                     // number of iterations
+	precision              = 1e-10                  // desired precision goal
 )
 
-var xmin, ymin, xmax, ymax = -2.1, -2.1, +2.1, +2.1 // left and right boundaries for plotting
+const (
+	_w, _h   = 1000, 1000
+	wx2, hx2 = _w * 2, _h * 2 // number of grid point for antialiasing
+)
 
 type fractalF func(z complex128) color.RGBA
 
@@ -92,9 +95,9 @@ func noSampling(img *image.RGBA) {
 	// ymin = -math.Floor(height/4)/zoom+iterations/zoom+ymin
 
 	for py := 0; py < height; py++ {
-		y := float64(py)/height*(ymax-ymin) + ymin
+		y := float64(py)/float64(height)*(ymax-ymin) + ymin
 		for px := 0; px < width; px++ {
-			x := float64(px)/width*(xmax-xmin) + xmin
+			x := float64(px)/float64(width)*(xmax-xmin) + xmin
 			z := complex(x, y)
 			// Image point (px, py) represents complex value z.
 			img.Set(px, py, newton(z))
@@ -108,7 +111,7 @@ func mandelbrot(z complex128) color.Color {
 	for n := 0; n < iterations; n++ {
 		v = v*v + z
 		if cmplx.Abs(v) > 2 {
-			i := math.Log(float64(n)) / math.Log(iterations)
+			i := math.Log(float64(n)) / math.Log(float64(iterations))
 			c := uint8(i * 255)
 			return color.RGBA{R: c - 20, G: c, B: c - 40, A: uint8(255 * i)}
 		}
@@ -116,6 +119,8 @@ func mandelbrot(z complex128) color.Color {
 
 	return color.Black
 }
+
+// newton's
 
 var f = func(z complex128) complex128 { return z*z*z*z - 1 }
 var derivative = func(z complex128) complex128 { return 4 * z * z * z }
