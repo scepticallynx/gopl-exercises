@@ -24,7 +24,7 @@ func eliminateDuplicates(s []string) []string {
 
 func main() {
 	// s := []string{"f", "a", "a", "a", "a", "f", "f", "c"}
-	var s = []string{"simle", "word", "word", "word", "word", "test", "test", "simple"}
+	var s = []string{"simple", "word", "word", "word", "word", "test", "test", "simple"}
 	s = eliminateDuplicates(s)
 	fmt.Println(s)
 }
