@@ -1,5 +1,15 @@
 /* Exercise 5.4: Modify findlinks to print all links from img, style etc.
- */
+
+0) go build alllinks.go
+1) any command to get html into stdin:
+	./fetch gopl.io
+	curl ...
+	or even: cat local.html
+2) redirect to (|)
+3) ./alllinks
+
+{HTML to stdin} | ./alllinks
+*/
 package main
 
 import (
