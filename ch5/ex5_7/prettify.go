@@ -46,9 +46,9 @@ func startElement(node *html.Node) {
 		var attrs = ""
 		for _, attr := range node.Attr {
 			if attr.Key == "public" {
-				attrs += " PUBLIC" + attr.Val
+				attrs += "PUBLIC \"" + attr.Val + "\""
 			} else {
-				attrs += " " + attr.Val
+				attrs += " \"" + attr.Val + "\""
 			}
 		}
 
